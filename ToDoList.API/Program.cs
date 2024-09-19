@@ -1,5 +1,6 @@
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using ToDoList.Application.Services;
 using ToDoList.Domain.Interfaces;
 using ToDoList.Infrastructure;
@@ -14,7 +15,6 @@ namespace ToDoList.Api
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-
             builder.Services.AddControllers();
 
             // Register the DbContext (SQLite)
@@ -24,8 +24,20 @@ namespace ToDoList.Api
             // Register the repository (infrastructure layer)
             builder.Services.AddScoped<IToDoRepository, ToDoRepository>();
 
-            // Register the service (application layer)
-            builder.Services.AddScoped<IToDoService, ToDoService>();
+
+            // Get cache expiration value from configuration
+            var cacheExpiration = builder.Configuration.GetValue<int>("CacheSettings:ExpirationInMinutes");
+
+            // Register ToDoService (application layer) with the cache expiration setting
+            builder.Services.AddScoped<IToDoService>(sp =>
+            {
+                var toDoRepository = sp.GetRequiredService<IToDoRepository>();
+                var memoryCache = sp.GetRequiredService<IMemoryCache>();
+                return new ToDoService(toDoRepository, memoryCache, cacheExpiration);
+            });
+
+            // Add MemoryCache to the DI container
+            builder.Services.AddMemoryCache();
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();

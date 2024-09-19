@@ -21,8 +21,7 @@ namespace ToDoList.Application.Services
         {
             var createdItem = await _toDoRepository.AddAsync(toDoItem);
 
-            // Invalidate cache after adding a new item
-            //_cache.Remove(_cacheKey);
+            // Refresh cache
             await RefreshCacheAsync();
 
             return createdItem;
@@ -32,7 +31,7 @@ namespace ToDoList.Application.Services
         {
             await _toDoRepository.DeleteAsync(id);
 
-            // Invalidate cache after delete
+            // Refresh cache
             _cache.Remove(_cacheKey);
         }
 
@@ -41,18 +40,7 @@ namespace ToDoList.Application.Services
             if (!_cache.TryGetValue(_cacheKey, out IEnumerable<ToDoItem> cachedToDoItems))
             {
                 // Cache miss: fetch from database
-                cachedToDoItems = await _toDoRepository.GetAllAsync();
-
-
-                await RefreshCacheAsync();
-                // Set cache options
-                //var cacheOptions = new MemoryCacheEntryOptions
-                //{
-                //    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) // Cache for 5 minutes
-                //};
-
-                //// Save in cache
-                //_cache.Set(_cacheKey, cachedToDoItems, cacheOptions);
+                cachedToDoItems = await RefreshCacheAsync();
             }
 
             return cachedToDoItems;
@@ -60,14 +48,29 @@ namespace ToDoList.Application.Services
 
         public async Task<ToDoItem?> GetByIdAsync(int id)
         {
-            return await _toDoRepository.GetByIdAsync(id);
+            // Try to get the entire list from the cache
+            if (_cache.TryGetValue(_cacheKey, out IEnumerable<ToDoItem> cachedToDoItems))
+            {
+                // Search for the item in the cached list
+                var toDoItem = cachedToDoItems.FirstOrDefault(item => item.Id == id);
+
+                if (toDoItem != null)
+                {
+                    return toDoItem;  // Return the item if found in the cache
+                }
+            }
+
+            // If the item is not in the cache, fallback to the repository
+            var fetchedToDoItem = await _toDoRepository.GetByIdAsync(id);
+
+            return fetchedToDoItem;
         }
 
         public async Task UpdateAsync(ToDoItem toDoItem)
         {
             await _toDoRepository.UpdateAsync(toDoItem);
 
-            // Invalidate cache after update
+            // refresh the cache
             _cache.Remove(_cacheKey);
         }
 
@@ -78,6 +81,23 @@ namespace ToDoList.Application.Services
             _cache.Set(_cacheKey, freshData, TimeSpan.FromMinutes(_cacheLifeSpan));
 
             return freshData;
+        }
+
+        public async Task<IEnumerable<ToDoItem>> FuzzySearchAsync(string searchTerm)
+        {
+            // Check if the cache is populated
+            if (!_cache.TryGetValue(_cacheKey, out IEnumerable<ToDoItem> cachedItems))
+            {
+                // Cache is empty, so populate it from the database
+                cachedItems = await RefreshCacheAsync();
+            }
+
+            // Perform the search on the cached items
+            var searchResults = cachedItems
+                .Where(item => !string.IsNullOrEmpty(item.Text) &&
+                               item.Text.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+
+            return searchResults;
         }
     }
 }

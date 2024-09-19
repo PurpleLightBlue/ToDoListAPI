@@ -89,5 +89,12 @@ namespace ToDoList.Api.Controllers
             await _toDoService.DeleteAsync(id);
             return NoContent();
         }
+
+        [HttpGet("fuzzysearch")]
+        public async Task<IActionResult> FuzzySearch([FromQuery] string searchTerm)
+        {
+            var searchResults = await _toDoService.FuzzySearchAsync(searchTerm);
+            return Ok(searchResults);
+        }
     }
 }

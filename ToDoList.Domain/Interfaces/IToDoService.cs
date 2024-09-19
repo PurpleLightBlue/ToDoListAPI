@@ -9,5 +9,6 @@ namespace ToDoList.Domain.Interfaces
         Task<ToDoItem> AddAsync(ToDoItem toDoItem);
         Task UpdateAsync(ToDoItem toDoItem);
         Task DeleteAsync(int id);
+        Task<IEnumerable<ToDoItem>> FuzzySearchAsync(string searchTerm);
     }
 }
