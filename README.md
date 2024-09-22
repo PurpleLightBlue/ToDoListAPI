@@ -58,20 +58,19 @@ ToDoList
    
 2. Update the database connection string in `appsettings.json`:
 ```
-   "ConnectionStrings": {
+"ConnectionStrings": {
     "DefaultConnection": "Server=your_server;Database=ToDoListDb;User Id=your_user;Password=your_password;"
-    }
+}
 ```
 3. Apply migrations and create the database:
-   ```
-   dotnet ef database update
-   ```
-
-5. Run the application:
-  ```
-dotnet run --project ToDoList.API
+```
+dotnet ef database update
 ```
 
+5. Run the application:
+```
+dotnet run --project ToDoList.API
+```
    
 ### Usage
 
