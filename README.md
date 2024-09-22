@@ -21,7 +21,25 @@ The ToDoList application is a simple task management system that allows users to
 - Dependency Injection
 
 ## Project Structure
-ToDoList ├── ToDoList.Domain │   ├── Interfaces │   │   └── IToDoRepository.cs │   ├── Models │   │   └── ToDoItem.cs ├── ToDoList.Application │   ├── Services │   │   └── ToDoService.cs ├── ToDoList.Infrastructure │   ├── Repositories │   │   └── ToDoRepository.cs │   ├── Data │   │   └── AppDbContext.cs ├── ToDoList.API │   ├── Controllers │   │   └── ToDoController.cs │   ├── Program.cs │   ├── Startup.cs
+ToDoList 
+├── ToDoList.Domain 
+│   ├── Interfaces 
+│   │   └── IToDoRepository.cs 
+│   ├── Models 
+│   │   └── ToDoItem.cs 
+├── ToDoList.Application 
+│   ├── Services 
+│   │   └── ToDoService.cs 
+├── ToDoList.Infrastructure 
+│   ├── Repositories 
+│   │   └── ToDoRepository.cs 
+│   ├── Data 
+│   │   └── AppDbContext.cs 
+├── ToDoList.API 
+│   ├── Controllers 
+│   │   └── ToDoController.cs 
+│   ├── Program.cs 
+│   ├── Startup.cs
 
 ## Getting Started
 
