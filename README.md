@@ -52,9 +52,10 @@ ToDoList
 ### Setup
 
 1. Clone the repository:
-    ```git clone https://github.com/yourusername/ToDoList.git
-    cd ToDoList```
-
+```
+git clone https://github.com/yourusername/ToDoList.git
+cd ToDoList
+```
    
 2. Update the database connection string in `appsettings.json`:
 ```
