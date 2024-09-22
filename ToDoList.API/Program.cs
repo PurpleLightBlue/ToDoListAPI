@@ -14,6 +14,17 @@ namespace ToDoList.Api
         {
             var builder = WebApplication.CreateBuilder(args);
 
+
+            // Add services to the container
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowSpecificOrigins",
+                    builder => builder
+                        .WithOrigins("http://localhost:3000")
+                        .AllowAnyMethod()   // Allows any HTTP method (GET, POST, etc.)
+                        .AllowAnyHeader()); // Allows any headers
+            });
+
             // Add services to the container.
             builder.Services.AddControllers();
 
@@ -44,6 +55,9 @@ namespace ToDoList.Api
             builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
+
+            // Enable CORS policy globally
+            app.UseCors("AllowSpecificOrigins");
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
