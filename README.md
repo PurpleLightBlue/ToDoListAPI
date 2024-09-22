@@ -21,6 +21,7 @@ The ToDoList application is a simple task management system that allows users to
 - Dependency Injection
 
 ## Project Structure
+```
 ToDoList 
 ├── ToDoList.Domain 
 │   ├── Interfaces 
@@ -40,7 +41,7 @@ ToDoList
 │   │   └── ToDoController.cs 
 │   ├── Program.cs 
 │   ├── Startup.cs
-
+```
 ## Getting Started
 
 ### Prerequisites
