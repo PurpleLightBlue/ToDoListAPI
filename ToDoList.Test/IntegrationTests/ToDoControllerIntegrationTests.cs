@@ -9,129 +9,132 @@ using ToDoList.Application.Services;
 using ToDoList.Domain.Interfaces;
 using ToDoList.Domain.Models;
 
-public class ToDoControllerIntegrationTests : IClassFixture<WebApplicationFactory<ToDoList.Api.Program>>
+namespace ToDoList.Test.IntegrationTests
 {
-    private readonly HttpClient _client;
-    private readonly Mock<IToDoRepository> _mockToDoRepository;
-
-    public ToDoControllerIntegrationTests(WebApplicationFactory<ToDoList.Api.Program> factory)
+    public class ToDoControllerIntegrationTests : IClassFixture<WebApplicationFactory<Api.Program>>
     {
-        _mockToDoRepository = new Mock<IToDoRepository>();
-        _client = factory.WithWebHostBuilder(builder =>
+        private readonly HttpClient _client;
+        private readonly Mock<IToDoRepository> _mockToDoRepository;
+
+        public ToDoControllerIntegrationTests(WebApplicationFactory<Api.Program> factory)
         {
-            builder.ConfigureServices(services =>
+            _mockToDoRepository = new Mock<IToDoRepository>();
+            _client = factory.WithWebHostBuilder(builder =>
             {
-                services.AddSingleton(_mockToDoRepository.Object);
-                services.AddScoped<IToDoService, ToDoService>(sp =>
+                builder.ConfigureServices(services =>
                 {
-                    var toDoRepository = sp.GetRequiredService<IToDoRepository>();
-                    var memoryCache = sp.GetRequiredService<IMemoryCache>();
-                    int cacheLifeSpan = 5; // Set the cache expiration time in minutes
-                    return new ToDoService(toDoRepository, memoryCache, cacheLifeSpan);
+                    services.AddSingleton(_mockToDoRepository.Object);
+                    services.AddScoped<IToDoService, ToDoService>(sp =>
+                    {
+                        var toDoRepository = sp.GetRequiredService<IToDoRepository>();
+                        var memoryCache = sp.GetRequiredService<IMemoryCache>();
+                        int cacheLifeSpan = 5; // Set the cache expiration time in minutes
+                        return new ToDoService(toDoRepository, memoryCache, cacheLifeSpan);
+                    });
                 });
-            });
-        }).CreateClient();
-    }
+            }).CreateClient();
+        }
 
-    [Fact]
-    public async Task GetAll_ShouldReturnOkResult()
-    {
-        // Arrange
-        var toDoItems = new List<ToDoItem>
+        [Fact]
+        public async Task GetAll_ShouldReturnOkResult()
+        {
+            // Arrange
+            var toDoItems = new List<ToDoItem>
         {
             new ToDoItem { Id = 1, Text = "Test 1", IsCompleted = false },
             new ToDoItem { Id = 2, Text = "Test 2", IsCompleted = true }
         };
-        _mockToDoRepository.Setup(repo => repo.GetAllAsync()).ReturnsAsync(toDoItems);
+            _mockToDoRepository.Setup(repo => repo.GetAllAsync()).ReturnsAsync(toDoItems);
 
-        // Act
-        var response = await _client.GetAsync("/api/todo");
+            // Act
+            var response = await _client.GetAsync("/api/todo");
 
-        // Assert
-        response.EnsureSuccessStatusCode();
-        var responseString = await response.Content.ReadAsStringAsync();
-        var result = JsonSerializer.Deserialize<IEnumerable<ToDoItemDto>>(responseString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        Assert.Equal(2, result.Count());
-    }
+            // Assert
+            response.EnsureSuccessStatusCode();
+            var responseString = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<IEnumerable<ToDoItemDto>>(responseString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            Assert.Equal(2, result.Count());
+        }
 
-    [Fact]
-    public async Task GetById_ShouldReturnNotFoundResult()
-    {
-        // Arrange
-        _mockToDoRepository.Setup(repo => repo.GetByIdAsync(It.IsAny<int>())).ReturnsAsync((ToDoItem)null);
+        [Fact]
+        public async Task GetById_ShouldReturnNotFoundResult()
+        {
+            // Arrange
+            _mockToDoRepository.Setup(repo => repo.GetByIdAsync(It.IsAny<int>())).ReturnsAsync((ToDoItem)null);
 
-        // Act
-        var response = await _client.GetAsync("/api/todo/1");
+            // Act
+            var response = await _client.GetAsync("/api/todo/1");
 
-        // Assert
-        Assert.Equal(System.Net.HttpStatusCode.NotFound, response.StatusCode);
-    }
+            // Assert
+            Assert.Equal(System.Net.HttpStatusCode.NotFound, response.StatusCode);
+        }
 
-    [Fact]
-    public async Task Add_ShouldReturnCreatedResult()
-    {
-        // Arrange
-        var toDoItemCreate = new ToDoItemCreateDTO { Text = "New Task", IsCompleted = false };
-        var toDoItem = new ToDoItem { Id = 1, Text = "New Task", IsCompleted = false };
-        _mockToDoRepository.Setup(repo => repo.AddAsync(It.IsAny<ToDoItem>())).ReturnsAsync(toDoItem);
+        [Fact]
+        public async Task Add_ShouldReturnCreatedResult()
+        {
+            // Arrange
+            var toDoItemCreate = new ToDoItemCreateDTO { Text = "New Task", IsCompleted = false };
+            var toDoItem = new ToDoItem { Id = 1, Text = "New Task", IsCompleted = false };
+            _mockToDoRepository.Setup(repo => repo.AddAsync(It.IsAny<ToDoItem>())).ReturnsAsync(toDoItem);
 
-        // Act
-        var content = new StringContent(JsonSerializer.Serialize(toDoItemCreate), Encoding.UTF8, "application/json");
-        var response = await _client.PostAsync("/api/todo", content);
+            // Act
+            var content = new StringContent(JsonSerializer.Serialize(toDoItemCreate), Encoding.UTF8, "application/json");
+            var response = await _client.PostAsync("/api/todo", content);
 
-        // Assert
-        response.EnsureSuccessStatusCode();
-        Assert.Equal(System.Net.HttpStatusCode.Created, response.StatusCode);
-    }
+            // Assert
+            response.EnsureSuccessStatusCode();
+            Assert.Equal(System.Net.HttpStatusCode.Created, response.StatusCode);
+        }
 
-    [Fact]
-    public async Task Update_ShouldReturnNoContentResult()
-    {
-        // Arrange
-        var toDoItemDto = new ToDoItemDto { Id = 1, Text = "Updated Task", IsCompleted = true };
-        _mockToDoRepository.Setup(repo => repo.UpdateAsync(It.IsAny<ToDoItem>())).Returns(Task.CompletedTask);
+        [Fact]
+        public async Task Update_ShouldReturnNoContentResult()
+        {
+            // Arrange
+            var toDoItemDto = new ToDoItemDto { Id = 1, Text = "Updated Task", IsCompleted = true };
+            _mockToDoRepository.Setup(repo => repo.UpdateAsync(It.IsAny<ToDoItem>())).Returns(Task.CompletedTask);
 
-        // Act
-        var content = new StringContent(JsonSerializer.Serialize(toDoItemDto), Encoding.UTF8, "application/json");
-        var response = await _client.PutAsync("/api/todo/1", content);
+            // Act
+            var content = new StringContent(JsonSerializer.Serialize(toDoItemDto), Encoding.UTF8, "application/json");
+            var response = await _client.PutAsync("/api/todo/1", content);
 
-        // Assert
-        response.EnsureSuccessStatusCode();
-        Assert.Equal(System.Net.HttpStatusCode.NoContent, response.StatusCode);
-    }
+            // Assert
+            response.EnsureSuccessStatusCode();
+            Assert.Equal(System.Net.HttpStatusCode.NoContent, response.StatusCode);
+        }
 
-    [Fact]
-    public async Task Delete_ShouldReturnNoContentResult()
-    {
-        // Arrange
-        _mockToDoRepository.Setup(repo => repo.DeleteAsync(It.IsAny<int>())).Returns(Task.CompletedTask);
+        [Fact]
+        public async Task Delete_ShouldReturnNoContentResult()
+        {
+            // Arrange
+            _mockToDoRepository.Setup(repo => repo.DeleteAsync(It.IsAny<int>())).Returns(Task.CompletedTask);
 
-        // Act
-        var response = await _client.DeleteAsync("/api/todo/1");
+            // Act
+            var response = await _client.DeleteAsync("/api/todo/1");
 
-        // Assert
-        response.EnsureSuccessStatusCode();
-        Assert.Equal(System.Net.HttpStatusCode.NoContent, response.StatusCode);
-    }
+            // Assert
+            response.EnsureSuccessStatusCode();
+            Assert.Equal(System.Net.HttpStatusCode.NoContent, response.StatusCode);
+        }
 
-    [Fact]
-    public async Task FuzzySearch_ShouldReturnOkResult()
-    {
-        // Arrange
-        var toDoItems = new List<ToDoItem>
+        [Fact]
+        public async Task FuzzySearch_ShouldReturnOkResult()
+        {
+            // Arrange
+            var toDoItems = new List<ToDoItem>
         {
             new ToDoItem { Id = 1, Text = "Test 1", IsCompleted = false },
             new ToDoItem { Id = 2, Text = "Shopping", IsCompleted = true }
         };
-        _mockToDoRepository.Setup(repo => repo.GetAllAsync()).ReturnsAsync(toDoItems);
+            _mockToDoRepository.Setup(repo => repo.GetAllAsync()).ReturnsAsync(toDoItems);
 
-        // Act
-        var response = await _client.GetAsync("/api/todo/fuzzysearch?searchTerm=test");
+            // Act
+            var response = await _client.GetAsync("/api/todo/fuzzysearch?searchTerm=test");
 
-        // Assert
-        response.EnsureSuccessStatusCode();
-        var responseString = await response.Content.ReadAsStringAsync();
-        var result = JsonSerializer.Deserialize<IEnumerable<ToDoItemDto>>(responseString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        Assert.Single(result);
+            // Assert
+            response.EnsureSuccessStatusCode();
+            var responseString = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<IEnumerable<ToDoItemDto>>(responseString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            Assert.Single(result);
+        }
     }
 }

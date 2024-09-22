@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Moq;
 using ToDoList.Api.Controllers;
 using ToDoList.Application.DTOs;
@@ -11,11 +12,13 @@ namespace ToDoList.Test.UnitTests
     {
         private readonly Mock<IToDoService> _mockToDoService;
         private readonly ToDoController _controller;
+        private readonly Mock<ILogger<ToDoController>> _mockLogger;
 
         public ToDoControllerTests()
         {
             _mockToDoService = new Mock<IToDoService>();
-            _controller = new ToDoController(_mockToDoService.Object);
+            _mockLogger = new Mock<ILogger<ToDoController>>();
+            _controller = new ToDoController(_mockToDoService.Object, _mockLogger.Object);
         }
 
         [Fact]

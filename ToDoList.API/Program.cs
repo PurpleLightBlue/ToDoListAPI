@@ -14,6 +14,9 @@ namespace ToDoList.Api
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            // Configure logging to console
+            builder.Logging.ClearProviders();
+            builder.Logging.AddConsole();
 
             // Add services to the container
             builder.Services.AddCors(options =>

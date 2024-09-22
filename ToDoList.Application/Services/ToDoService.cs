@@ -4,6 +4,9 @@ using ToDoList.Domain.Models;
 
 namespace ToDoList.Application.Services
 {
+    /// <summary>
+    /// Service for managing to-do items.
+    /// </summary>
     public class ToDoService : IToDoService
     {
         private readonly IToDoRepository _toDoRepository;
@@ -11,12 +14,23 @@ namespace ToDoList.Application.Services
         private readonly string _cacheKey = "ToDoItems";
         private readonly int _cacheLifeSpan = 5;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ToDoService"/> class.
+        /// </summary>
+        /// <param name="toDoRepository">The to-do repository.</param>
+        /// <param name="memoryCache">The memory cache.</param>
+        /// <param name="cacheLifeSpan">The cache lifespan in minutes.</param>
         public ToDoService(IToDoRepository toDoRepository, IMemoryCache memoryCache, int cacheLifeSpan)
         {
             _toDoRepository = toDoRepository;
             _cache = memoryCache;
         }
 
+        /// <summary>
+        /// Adds a new to-do item.
+        /// </summary>
+        /// <param name="toDoItem">The to-do item to add.</param>
+        /// <returns>The added to-do item.</returns>
         public async Task<ToDoItem> AddAsync(ToDoItem toDoItem)
         {
             var createdItem = await _toDoRepository.AddAsync(toDoItem);
@@ -27,6 +41,10 @@ namespace ToDoList.Application.Services
             return createdItem;
         }
 
+        /// <summary>
+        /// Deletes a to-do item by ID.
+        /// </summary>
+        /// <param name="id">The ID of the to-do item to delete.</param>
         public async Task DeleteAsync(int id)
         {
             await _toDoRepository.DeleteAsync(id);
@@ -35,6 +53,10 @@ namespace ToDoList.Application.Services
             _cache.Remove(_cacheKey);
         }
 
+        /// <summary>
+        /// Gets all to-do items.
+        /// </summary>
+        /// <returns>A list of to-do items.</returns>
         public async Task<IEnumerable<ToDoItem>> GetAllAsync()
         {
             if (!_cache.TryGetValue(_cacheKey, out IEnumerable<ToDoItem> cachedToDoItems))
@@ -46,6 +68,11 @@ namespace ToDoList.Application.Services
             return cachedToDoItems;
         }
 
+        /// <summary>
+        /// Gets a to-do item by ID.
+        /// </summary>
+        /// <param name="id">The ID of the to-do item.</param>
+        /// <returns>The to-do item, or null if not found.</returns>
         public async Task<ToDoItem?> GetByIdAsync(int id)
         {
             // Try to get the entire list from the cache
@@ -66,6 +93,10 @@ namespace ToDoList.Application.Services
             return fetchedToDoItem;
         }
 
+        /// <summary>
+        /// Updates an existing to-do item.
+        /// </summary>
+        /// <param name="toDoItem">The to-do item to update.</param>
         public async Task UpdateAsync(ToDoItem toDoItem)
         {
             await _toDoRepository.UpdateAsync(toDoItem);
@@ -74,7 +105,10 @@ namespace ToDoList.Application.Services
             _cache.Remove(_cacheKey);
         }
 
-        // This method is responsible for refreshing the cache
+        /// <summary>
+        /// Refreshes the cache with the latest to-do items.
+        /// </summary>
+        /// <returns>A list of the latest to-do items.</returns>
         private async Task<IEnumerable<ToDoItem>> RefreshCacheAsync()
         {
             var freshData = await _toDoRepository.GetAllAsync();
@@ -83,6 +117,11 @@ namespace ToDoList.Application.Services
             return freshData;
         }
 
+        /// <summary>
+        /// Performs a fuzzy search for to-do items.
+        /// </summary>
+        /// <param name="searchTerm">The search term.</param>
+        /// <returns>A list of to-do items matching the search term.</returns>
         public async Task<IEnumerable<ToDoItem>> FuzzySearchAsync(string searchTerm)
         {
             // Check if the cache is populated
