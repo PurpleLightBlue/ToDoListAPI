@@ -4,6 +4,9 @@
 
 The ToDoList application is a simple task management system that allows users to create, read, update, and delete to-do items. It uses ASP.NET Core for the backend and Entity Framework Core for data access.
 
+### Things that went well
+I feel pleased with the layout of the project in that it follows a Domain Driven Design for its layers. Also I am pleased with the tests although maybe some more true end-to-end tests wouldnt go amiss. As mentioned in the front-end readme this API is very naive in that there is light security and no concept of Users and thier associated accounts. Again some sort of integration with Okta or Entra would be my choice to have some sort of token and claims based authentication to vlaidate users. 
+
 ## Features
 
 - Add new to-do items
