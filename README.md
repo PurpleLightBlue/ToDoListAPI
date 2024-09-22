@@ -52,20 +52,20 @@ ToDoList
 ### Setup
 
 1. Clone the repository:
-    git clone https://github.com/yourusername/ToDoList.git
-    cd ToDoList
+    ```git clone https://github.com/yourusername/ToDoList.git
+    cd ToDoList```
 
    
 2. Update the database connection string in `appsettings.json`:
-    "ConnectionStrings": {
+   ``` "ConnectionStrings": {
     "DefaultConnection": "Server=your_server;Database=ToDoListDb;User Id=your_user;Password=your_password;"
-}
+}```
 
 3. Apply migrations and create the database:
-    dotnet ef database update
+   ``` dotnet ef database update```
 
 4. Run the application:
-   dotnet run --project ToDoList.API
+  ``` dotnet run --project ToDoList.API```
 
    
 ### Usage
