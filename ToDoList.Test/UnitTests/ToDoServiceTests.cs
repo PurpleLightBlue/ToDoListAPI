@@ -44,7 +44,6 @@ namespace ToDoList.Test.UnitTests
 
             // Assert
             _mockToDoRepository.Verify(repo => repo.DeleteAsync(1), Times.Once);
-            //_mockMemoryCache.Verify(cache => cache.Remove("ToDoItems"), Times.Once);
         }
 
         [Fact]
@@ -76,7 +75,6 @@ namespace ToDoList.Test.UnitTests
             // Assert
             Assert.Equal(toDoItems, result);
             _mockToDoRepository.Verify(repo => repo.GetAllAsync(), Times.Once);
-            //_mockMemoryCache.Verify(cache => cache.Set("ToDoItems", toDoItems, It.IsAny<MemoryCacheEntryOptions>()), Times.Once);
         }
 
         [Fact]
@@ -99,7 +97,6 @@ namespace ToDoList.Test.UnitTests
         {
             // Arrange
             var toDoItem = new ToDoItem { Id = 1, Text = "Test", IsCompleted = false };
-            // _mockMemoryCache.Setup(cache => cache.TryGetValue("ToDoItems", out It.Ref<IEnumerable<ToDoItem>>.IsAny)).Returns(false);
             _mockToDoRepository.Setup(repo => repo.GetByIdAsync(1)).ReturnsAsync(toDoItem);
 
             // Act
@@ -121,7 +118,6 @@ namespace ToDoList.Test.UnitTests
 
             // Assert
             _mockToDoRepository.Verify(repo => repo.UpdateAsync(toDoItem), Times.Once);
-            //_mockMemoryCache.Verify(cache => cache.Remove("ToDoItems"), Times.Once);
         }
 
         [Fact]
@@ -133,8 +129,8 @@ namespace ToDoList.Test.UnitTests
                 new ToDoItem { Id = 1, Text = "Test", IsCompleted = false },
                 new ToDoItem { Id = 2, Text = "Another Test", IsCompleted = true }
             };
-            //_mockMemoryCache.Setup(cache => cache.TryGetValue("ToDoItems", out toDoItems)).Returns(true);
             _mockMemoryCache.Set("ToDoItems", toDoItems, new MemoryCacheEntryOptions());
+
             // Act
             var result = await _toDoService.FuzzySearchAsync("Test");
 

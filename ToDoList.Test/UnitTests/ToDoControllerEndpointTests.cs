@@ -46,7 +46,7 @@ public class ToDoControllerEndpointTests : IClassFixture<WebApplicationFactory<T
     }
 
     [Fact]
-    public async Task GetById_ShouldReturnNotFoundResult()
+    public async Task GetById_ShouldReturnNotFoundResult_WhenRepositoryReturnsNull()
     {
         // Arrange
         _mockToDoService.Setup(service => service.GetByIdAsync(It.IsAny<int>())).ReturnsAsync((ToDoItem)null);

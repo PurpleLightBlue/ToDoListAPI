@@ -57,7 +57,7 @@ namespace ToDoList.Test.IntegrationTests
         }
 
         [Fact]
-        public async Task GetById_ShouldReturnNotFoundResult()
+        public async Task GetById_ShouldReturnNotFoundResult_WhenRepositoryReturnsNull()
         {
             // Arrange
             _mockToDoRepository.Setup(repo => repo.GetByIdAsync(It.IsAny<int>())).ReturnsAsync((ToDoItem)null);

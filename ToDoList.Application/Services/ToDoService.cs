@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿using FuzzySharp;
+using Microsoft.Extensions.Caching.Memory;
 using ToDoList.Domain.Interfaces;
 using ToDoList.Domain.Models;
 
@@ -24,6 +25,7 @@ namespace ToDoList.Application.Services
         {
             _toDoRepository = toDoRepository;
             _cache = memoryCache;
+            _cacheLifeSpan = cacheLifeSpan;
         }
 
         /// <summary>
@@ -132,9 +134,10 @@ namespace ToDoList.Application.Services
             }
 
             // Perform the search on the cached items
+            // We are using FuzzySearch to help with the search
             var searchResults = cachedItems
                 .Where(item => !string.IsNullOrEmpty(item.Text) &&
-                               item.Text.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+                               Fuzz.PartialRatio(item.Text, searchTerm) > 70);
 
             return searchResults;
         }

@@ -94,6 +94,12 @@ namespace ToDoList.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Add([FromBody] ToDoItemCreateDTO toDoItemCreate)
         {
+            if (toDoItemCreate is null)
+            {
+                _logger.LogError("The incoming ToDoItemCreateDTO cannot be null.");
+                return StatusCode(400, "The incoming ToDoItem cannot be null.");
+            }
+
             try
             {
                 var toDoItem = new ToDoItem
@@ -121,6 +127,12 @@ namespace ToDoList.Api.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] ToDoItemDto toDoItemDto)
         {
+            if (toDoItemDto is null)
+            {
+                _logger.LogError("The incoming ToDoItemDTO cannot be null.");
+                return StatusCode(400, "The incoming ToDoItem cannot be null.");
+            }
+
             try
             {
                 if (id != toDoItemDto.Id)
@@ -174,6 +186,12 @@ namespace ToDoList.Api.Controllers
         [HttpGet("fuzzysearch")]
         public async Task<IActionResult> FuzzySearch([FromQuery] string searchTerm)
         {
+            if (string.IsNullOrWhiteSpace(searchTerm))
+            {
+                _logger.LogError("The search term cannot be null or whitespace.");
+                return StatusCode(400, "The search term cannot be null or whitespace.");
+            }
+
             try
             {
                 var searchResults = await _toDoService.FuzzySearchAsync(searchTerm);
