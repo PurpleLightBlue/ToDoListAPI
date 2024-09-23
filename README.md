@@ -75,9 +75,11 @@ dotnet ef database update
 ```
 
 5. Run the application:
+Either run the project from the command line, if you do be sure to update the front end project .env file to use port 5274 over http
 ```
 dotnet run --project ToDoList.API
 ```
+Or use VS 2022 debug option, in which case make sure the front end app uses https and port 7207.
    
 ### Usage
 
